@@ -1,88 +1,74 @@
-# Advanced Web Scraping Tool with AI Integration
+# WebScrapAI: Web Scraping with AI Integration
 
-## Overview
-
-This Python-based web scraping tool leverages advanced techniques to extract structured data from web pages, utilizing proxy rotation, AI-powered parsing, and robust error handling. The script is designed for ethical web scraping, with comprehensive features for handling various scraping scenarios.
+WebScrapAI is a powerful Python-based web scraping tool that integrates AI to extract data such as names, prices, reviews, and other relevant information from web pages. The tool supports scraping from a single URL or a JSON list of URLs and leverages Google's Generative AI API for advanced content parsing and extraction.
 
 ## Features
+- Fetch web pages using robust retry mechanisms with proxy support.
+- Extract useful links and relevant content from web pages.
+- Leverage Google's Generative AI to parse and process webpage data.
+- Support for single URL or JSON file-based scraping.
+- Save extracted data in a structured format.
 
-- 🌐 **Dynamic Web Scraping**
-  - Supports multiple base URLs and search queries
-  - Intelligent proxy rotation to avoid IP blocking
-  - Multiple user-agent randomization
+## Prerequisites
+- Python 3.12 or higher
+- Google Generative AI credentials (GEMINI API Key)
 
-- 🤖 **AI-Powered Data Extraction**
-  - Google Gemini AI integration for intelligent content parsing
-  - Structured data extraction with configurable fields
-  - Adaptive error handling and data recovery
-
-- 🛡️ **Advanced Security and Reliability**
-  - Proxy list fetching
-  - Configurable retry mechanisms
-  - Colorful console output for better readability
-
-## Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/KaulikMakwana/WebScrape.git
-   cd WebScrape
-   python WebScrape.py -h
-   
-   ```
-
-2. Install dependencies:
-   ```bash
-	pip install -r requirements.txt
-   ```
+Installation:
+```bash
+git clone https://github.com/KaulikMakwana/WebScrap.git
+cd WebScrap
+pip install -r requirements.txt
+python3 WebScrap.py -h
+```
 
 ## Usage
+Run the script using the command-line interface (CLI). The tool supports two modes of operation:
 
-### Basic Syntax
+### 1. Scraping with a JSON File
+If you have a JSON file containing a list of URLs, use the following command:
 ```bash
-python WebScrap.py -burl <base_url> -q <query> -d <product_data> -o <output_file>
+python WebScrapAI.py --scraper -f <json_file> -p "<AI_prompt>" -o <output_file>
 ```
+#### Arguments:
+- `--scraper`: Enables the scraping mode.
+- `-f, --file`: Path to the JSON file containing target URLs.
+- `-p, --prompt`: Custom prompt for the AI to parse webpage data.
+- `-o, --output`: Output filename for scraped data.
 
-### Command-Line Arguments
-```Bash
-/bin/python WebScrap.py -h           
-usage: WebScrap.py [-h] [-burl BASEURL] [-q QUERY] [-d PRODUCTDATA] [-o OUTPUT] [-retry MAX_RETRIES] [-delay RETRY_DELAY]
-
-Web Scraping Project with AI Integration 
-
-options:
-  -h, --help            show this help message and exit
-  -burl BASEURL, --baseurl BASEURL
-                        Base URL for scraping
-  -q QUERY, --query QUERY
-                        Query parameter for the search URL
-  -d PRODUCTDATA, --productdata PRODUCTDATA
-                        Data to Parse From Service
-  -o OUTPUT, --output OUTPUT
-                        File name to save for Scraped Data
-  -retry MAX_RETRIES, --max_retries MAX_RETRIES
-                        Maximum Retry to request service
-  -delay RETRY_DELAY, --retry_delay RETRY_DELAY
-                        Retry Delay in between requests
-
-```
-### Example
+### 2. Scraping a Single URL
+To scrape data from a single URL, use the following command:
 ```bash
-python testai.py -burl 'https://www.amazon.in/s?k=' -q "laptop" -d "Title,Price,Reviews" -o laptop_data.txt
+python WebScrapAI.py --url <webpage_url> -p "<AI_prompt>" -o <output_file>
+```
+#### Arguments:
+- `--url`: URL of the webpage to scrape.
+- `-p, --prompt`: Custom prompt for the AI to parse webpage data.
+- `-o, --output`: Output filename for scraped data.
+
+### Optional Arguments:
+- `--max_retries`: Maximum number of retries for fetching web pages (default: 10).
+- `--retry_delay`: Delay between retries in seconds (default: 5).
+
+## Example Commands
+### JSON File Scraping
+```bash
+python WebScrapAI.py --scraper -f links.json -p "Extract product details" -o ProductData.txt
 ```
 
-## Note
+### Single URL Scraping
+```bash
+python WebScrapAI.py --url https://example.com -p "Extract usefull linux commands from webpage" -o commands.json
+```
 
-Use export export GEMINI_API_KEY=<'your api key'>
+## Environment Variables
+Ensure the `GEMINI_API_KEY` is set in your environment to use Google's Generative AI:
+```bash
+export GEMINI_API_KEY=<your_api_key>
+```
 
 ## License
+This project is licensed under the MIT License.
 
-Distributed under the MIT License. See `LICENSE` for more information.
+## Author
+Developed by Kaulik Makwana. Contributions and feedback are welcome!
 
-## Disclaimer
-
-This tool is for educational and research purposes only. Misuse of web scraping tools can violate terms of service and potentially legal regulations.
-
-## Contact
-
-Project Maintainer - [KaulikMakwana/kaullik81@gmail.com]
