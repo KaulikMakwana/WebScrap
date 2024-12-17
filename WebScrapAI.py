@@ -75,12 +75,14 @@ def fetch_request(url, max_retries=10, retry_delay=5):
         time.sleep(retry_delay)
     return None
 
-def run_model(prompt, system_instruction, save_response_filename, filemode='a'):
+def run_model(prompt, system_instruction, save_response_filename,model_to_use,filemode='a'):
     """Run the Gemini API Model.
      - prompt: Your Prompt
      - system_instruction: system instruction for gemini to behave like that
      - save_response_filename: gemini output file name
+     - model_to_use: default: gemini-1.5-flash-002
      - filemode: 'w' or 'a' (a for appending)
+
      - note : compitable gemini api model: 
               - gemini-1.5-flash-001    - gemini-1.5-flash-002    - gemini-1.5-flash-8b
               - gemini-1.5-pro-latest   
@@ -88,12 +90,6 @@ def run_model(prompt, system_instruction, save_response_filename, filemode='a'):
     """
     try:
         genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
-        ''' You can select any one model and put it in models list otherwise it will select random model...'''
-        model_to_use = ["gemini-2.0-flash-exp"]
-        gemini_pro=["gemini-1.5-pro-latest"]
-        gemini_flash=["gemini-1.5-flash-001", "gemini-1.5-flash-002","gemini-1.5-flash-8b"]
-        gemini_exp=["gemini-1.5-flash-8b-exp-0924","gemini-2.0-flash-exp"]
-        
         safety_settings = [
             {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
             {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
@@ -101,7 +97,7 @@ def run_model(prompt, system_instruction, save_response_filename, filemode='a'):
             {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
         ]
 
-        model = genai.GenerativeModel(model_name=random.choice(model_to_use),
+        model = genai.GenerativeModel(model_name=model_to_use,
                                       system_instruction=system_instruction)
 
         print(f"{INFO}[*] Using Model {model.model_name}...{RESET}")
@@ -124,7 +120,7 @@ def run_model(prompt, system_instruction, save_response_filename, filemode='a'):
     except Exception as e:
         print(f"{ERROR}[?] Error in AI Model: {e}{RESET}")
 
-def only_url_passed(url,max_retries,retry_delay,prompt,system_instruction,output_filename,filemode):
+def only_url_passed(url,max_retries,retry_delay,prompt,system_instruction,output_filename,model_to_use,filemode):
     """Function if only url parameter passed..."""
     domain_name=urlparse(url).netloc
     os.makedirs(domain_name, exist_ok=True)
@@ -133,11 +129,12 @@ def only_url_passed(url,max_retries,retry_delay,prompt,system_instruction,output
     webpage=fetch_request(url,max_retries,retry_delay)
     
     if webpage:
-        run_model(f"{prompt} {closed_prompt}, {webpage}",system_instruction,output_path,filemode)
+        run_model(f"{prompt} {closed_prompt}, {webpage}",
+                  system_instruction,output_path,model_to_use,filemode)
     else:
         print(f"{ERROR}[?] Error fetching webpage.{RESET}")
     
-def scraper(link_file_json,prompt, output_filename, max_retries, retry_delay, system_instruction):
+def scraper(link_file_json,prompt, output_filename, max_retries, retry_delay, system_instruction,model_to_use):
     """Main scraper function."""
     closed_prompt = "and make sure to close JSON syntax with }]}"
 
@@ -159,7 +156,7 @@ def scraper(link_file_json,prompt, output_filename, max_retries, retry_delay, sy
                 if page_content:
                     print(f"{SUCCESS}[+] Processing page data...{RESET}")
                     output_path = os.path.join(domain_name,output_filename)
-                    run_model(f"{prompt} {closed_prompt}, {page_content}", system_instruction,output_path, 'a')
+                    run_model(f"{prompt} {closed_prompt}, {page_content}", system_instruction,output_path,model_to_use,'a')
                 else:
                     print(f"{ERROR}[?] Error loading page: {link}{RESET}")
     
@@ -174,12 +171,18 @@ if __name__ == "__main__":
 
 python3 WebScrap.py -u 'https://example.com/' -p 'Extract usefull linux commands from webpage' -o command.json
 python3 WebScrap.py -scrap -f links.json -p 'Extract product title,price,ratings from webpages' 
+
+supported model.. 1) flash: - gemini-1.5-flash-001    - gemini-1.5-flash-002    - gemini-1.5-flash-8b
+                  2) pro: - gemini-1.5-pro-latest
+                  3) Experimental: - gemini-2.0-flash-exp  - gemini-1.5-flash-8b-exp-0924
     """)
 
     parser.add_argument("-url", "--url", type=str, help="Base URL for scraping")
     parser.add_argument("-scrap", "--scraper", action='store_true', help="Enable data scraping mode")
     parser.add_argument("-f","--file",type=str,help="json file contains target links...")
     parser.add_argument("-p", "--prompt", type=str, default="Extract product links from webpage", help="Prompt for AI model")
+    parser.add_argument("-m","--model",type=str,default="gemini-1.5-flash-002",
+                        help="gemini genai model to use.. default: gemini-1.5-flash-002")
     parser.add_argument("-o", "--output", type=str, default="ProductData.txt", help="Output filename")
     parser.add_argument("-retry", "--max_retries", type=int, default=10, help="Maximum retries for HTTP requests")
     parser.add_argument("-delay", "--retry_delay", type=int, default=5, help="Delay between retries")
@@ -201,10 +204,10 @@ python3 WebScrap.py -scrap -f links.json -p 'Extract product title,price,ratings
                 print(f"{ERROR}[?] No JSON file provided. Use the -f argument.{RESET}")
                 exit(1)
             scraper(args.file,args.prompt, args.output, args.max_retries, 
-                    args.retry_delay, system_instruction)
+                    args.retry_delay, system_instruction,args.model,'a')
         else:
             only_url_passed(args.url,args.max_retries,args.retry_delay,
-                            args.prompt,system_instruction,args.output,'w')
+                            args.prompt,system_instruction,args.output,args.model,'a')
 
     except KeyboardInterrupt:
         print(f"{FAILED}[-] Process interrupted by user.{RESET}")
