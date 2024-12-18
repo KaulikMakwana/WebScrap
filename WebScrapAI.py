@@ -183,7 +183,7 @@ supported model.. 1) flash: - gemini-1.5-flash-001    - gemini-1.5-flash-002    
     parser.add_argument("-p", "--prompt", type=str, default="Extract product links from webpage", help="Prompt for AI model")
     parser.add_argument("-m","--model",type=str,default="gemini-1.5-flash-002",
                         help="gemini genai model to use.. default: gemini-1.5-flash-002")
-    parser.add_argument("-o", "--output", type=str, default="ProductData.txt", help="Output filename")
+    parser.add_argument("-o", "--output", type=str, default="ProductData.json", help="Output filename")
     parser.add_argument("-retry", "--max_retries", type=int, default=10, help="Maximum retries for HTTP requests")
     parser.add_argument("-delay", "--retry_delay", type=int, default=5, help="Delay between retries")
 
@@ -205,9 +205,11 @@ supported model.. 1) flash: - gemini-1.5-flash-001    - gemini-1.5-flash-002    
                 exit(1)
             scraper(args.file,args.prompt, args.output, args.max_retries, 
                     args.retry_delay, system_instruction,args.model,'a')
-        else:
+        elif args.url:
             only_url_passed(args.url,args.max_retries,args.retry_delay,
                             args.prompt,system_instruction,args.output,args.model,'a')
+        else:
+            parser.print_help()
 
     except KeyboardInterrupt:
         print(f"{FAILED}[-] Process interrupted by user.{RESET}")
