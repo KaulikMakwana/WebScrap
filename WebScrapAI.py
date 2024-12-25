@@ -207,7 +207,7 @@ supported model.. 1) flash: - gemini-1.5-flash-001    - gemini-1.5-flash-002    
                     args.retry_delay, system_instruction,args.model,'a')
         elif args.url:
             only_url_passed(args.url,args.max_retries,args.retry_delay,
-                            args.prompt,system_instruction,args.output,args.model,'a')
+                            args.prompt,system_instruction,args.output,args.model)
         else:
             parser.print_help()
 
